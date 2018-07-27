@@ -1,6 +1,6 @@
 # Cacheable Array [![Build Status](https://travis-ci.org/serato/php-cacheable-array.svg?branch=master)](https://travis-ci.org/serato/php-cacheable-array)
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/serato/php-cacheable-array.svg)](https://packagist.org/packages/serato/cacheable-array)
+[![Latest Stable Version](https://img.shields.io/packagist/v/serato/cacheable-array.svg)](https://packagist.org/packages/serato/cacheable-array)
 
 Provides an array-like object whose objects are persisted to a PSR-16 cache
 
