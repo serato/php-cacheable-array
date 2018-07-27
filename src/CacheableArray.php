@@ -48,6 +48,7 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
     public function setTTL(int $ttl): self
     {
         $this->ttl = $ttl;
+        $this->save();
         return $this;
     }
 
