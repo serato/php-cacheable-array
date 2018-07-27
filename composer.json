@@ -1,5 +1,5 @@
 {
-	"name": "serato/php-cachable-arrray",
+	"name": "serato/cacheable-array",
 	"homepage": "https://github.com/serato/php-cachable-arrray",
 	"description": "Provides an array-like object whose contents are persisted to a PSR-16 cache",
 	"type": "library",
