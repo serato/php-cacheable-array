@@ -5,6 +5,7 @@ namespace Serato\CacheableArray;
 use Psr\SimpleCache\CacheInterface;
 use ArrayIterator;
 use ArrayAccess;
+use SeekableIterator;
 use Countable;
 use IteratorAggregate;
 
@@ -23,7 +24,10 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
     private $ttl;
 
     /* @var array */
-    private $data = [];
+    private $data = null;
+
+    /* @var bool */
+    private $synced = false;
 
     /**
      * Constructs the object
@@ -31,12 +35,20 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
      * @param CacheInterface    $cache      A PSR-16 cache implementation
      * @param string            $key        Cache key
      * @param int               $ttl        Cache TTL (in seconds, defaults to 3600)
+     *
+     * @return void
      */
     public function __construct(CacheInterface $cache, string $key, int $ttl = 3600)
     {
         $this->cache = $cache;
         $this->key = $key;
         $this->ttl = $ttl;
+        $this->load();
+    }
+
+    public function __destruct()
+    {
+        $this->save();
     }
 
     /**
@@ -48,18 +60,17 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
     public function setTTL(int $ttl): self
     {
         $this->ttl = $ttl;
-        $this->save();
+        $this->synced = false;
         return $this;
     }
 
-    # START - Methods for ArrayAccess
+    # START - Methods for ArrayAccess interface
 
     /**
      * {@inheritdoc}
      */
     public function offsetExists($offset): bool
     {
-        $this->load();
         return isset($this->data[$offset]);
     }
 
@@ -68,7 +79,6 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
      */
     public function offsetGet($offset)
     {
-        $this->load();
         return isset($this->data[$offset]) ? $this->data[$offset] : null;
     }
 
@@ -77,9 +87,8 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
      */
     public function offsetSet($offset, $value)
     {
-        $this->load();
         $this->data[$offset] = $value;
-        $this->save();
+        $this->synced = false;
     }
 
     /**
@@ -87,48 +96,51 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
      */
     public function offsetUnset($offset)
     {
-        $this->load();
         if (isset($this->data[$offset])) {
             unset($this->data[$offset]);
-            $this->save();
+            $this->synced = false;
         }
     }
 
-    # END - Methods for ArrayAccess
+    # END - Methods for ArrayAccess interface
 
-    # START - Methods for Countable
+    # START - Methods for IteratorAggregate interface
 
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): SeekableIterator
     {
         return new ArrayIterator($this->data);
     }
 
-    # END - Methods for Countable
+    # END - Methods for IteratorAggregate interface
 
-    # START - Methods for IteratorAggregate
+    # START - Methods for Countable interface
 
     /**
      * {@inheritdoc}
      */
     public function count(): int
     {
-        $this->load();
         return count($this->data);
     }
 
-    # END - Methods for IteratorAggregate
+    # END - Methods for Countable interface
 
     private function load()
     {
-        $this->data = $this->cache->get($this->getCacheKey(), []);
+        if ($this->data === null) {
+            $this->data = $this->cache->get($this->getCacheKey(), []);
+            $this->synced = ($this->data !== null);
+        }
     }
 
     private function save()
     {
-        $this->cache->set($this->getCacheKey(), $this->data, $this->ttl);
+        if (!$this->synced) {
+            $this->synced = $this->cache->set($this->getCacheKey(), $this->data, $this->ttl);
+        }
     }
 
     private function getCacheKey()
