@@ -2,7 +2,13 @@
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/serato/cacheable-array.svg)](https://packagist.org/packages/serato/cacheable-array)
 
-Provides an array-like object whose objects are persisted to a PSR-16 cache
+Provides an array-like object whose items are persisted to a PSR-16 cache instance.
+
+Upon creation the object is populated with existing items from the cache, should they exist.
+
+Items are saved into the cache when the instance is destroyed.
+
+Note: No attempt is made to synchronise multiple instances of CacheableArray that use the same cache instance and cache key.
 
 ## Requirements
 
@@ -33,7 +39,7 @@ $cache = new \Symfony\Component\Cache\Simple\FilesystemCache;
 // Create the CacheableArray instance
 $ac = new CacheableArray($cache, 'my_cache_key');
 
-// Use standard PHP syntax for accessing, counting or iterating over the CacheableArray instance
+// Use standard PHP array syntax for accessing, counting or iterating over the CacheableArray instance
 $ac['key'] = 'value';
 echo $ac['key'];
 echo count($ac);
