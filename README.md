@@ -21,7 +21,7 @@ Installation will usually consist of adding the library to a project's `composer
 ```json
 {
     "require": {
-        "serato/serato/cacheable-array": "^1.0"
+        "serato/cacheable-array": "^1.0"
     }
 }
 ```
