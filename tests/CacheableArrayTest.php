@@ -81,6 +81,30 @@ class CacheableArrayTest extends TestCase
         $this->assertFalse(isset($ac['key1']));
     }
 
+    public function testArrayIterator()
+    {
+        $ac = new CacheableArray($this->getPsrCache(), 'abc');
+        $ac['key1'] = 'value1';
+        $ac['key2'] = 'value2';
+
+        $i = $ac->getIterator();
+
+        $this->assertEquals($i->key(), 'key1');
+        $this->assertEquals($ac[$i->key()], 'value1');
+
+        $i->next();
+
+        $this->assertEquals($i->key(), 'key2');
+        $this->assertEquals($ac[$i->key()], 'value2');
+
+        while (count($ac) > 0) {
+            $i->rewind();
+            unset($ac[$i->key()]);
+        }
+
+        $this->assertEquals(0, count($ac));
+    }
+
     private function getPsrCache(): CacheInterface
     {
         return new FilesystemCache(str_replace('\\', '-', __CLASS__), 60, $this->getFileCacheDir());

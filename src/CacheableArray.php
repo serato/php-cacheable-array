@@ -24,7 +24,7 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
     /* @var int */
     private $ttl;
 
-    /* @var array */
+    /* @var ArrayIterator */
     private $data = null;
 
     /* @var bool */
@@ -72,7 +72,7 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
      */
     public function offsetExists($offset): bool
     {
-        return isset($this->data[$offset]);
+        return $this->data->offsetExists($offset);
     }
 
     /**
@@ -80,7 +80,7 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
      */
     public function offsetGet($offset)
     {
-        return isset($this->data[$offset]) ? $this->data[$offset] : null;
+        return $this->data->offsetGet($offset);
     }
 
     /**
@@ -88,7 +88,7 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
      */
     public function offsetSet($offset, $value)
     {
-        $this->data[$offset] = $value;
+        $this->data->offsetSet($offset, $value);
         $this->synced = false;
     }
 
@@ -97,8 +97,8 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
      */
     public function offsetUnset($offset)
     {
-        if (isset($this->data[$offset])) {
-            unset($this->data[$offset]);
+        if ($this->offsetExists($offset)) {
+            $this->data->offsetUnset($offset);
             $this->synced = false;
         }
     }
@@ -112,7 +112,7 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
      */
     public function getIterator(): SeekableIterator
     {
-        return new ArrayIterator($this->data);
+        return $this->data;
     }
 
     # END - Methods for IteratorAggregate interface
@@ -124,7 +124,7 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
      */
     public function count(): int
     {
-        return count($this->data);
+        return $this->data->count();
     }
 
     # END - Methods for Countable interface
@@ -132,15 +132,15 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
     private function load()
     {
         if ($this->data === null) {
-            $this->data = $this->cache->get($this->getCacheKey(), []);
-            $this->synced = ($this->data !== null);
+            $this->data = new ArrayIterator($this->cache->get($this->getCacheKey(), []));
+            $this->synced = true;
         }
     }
 
     private function save()
     {
         if (!$this->synced) {
-            $this->synced = $this->cache->set($this->getCacheKey(), $this->data, $this->ttl);
+            $this->synced = $this->cache->set($this->getCacheKey(), $this->data->getArrayCopy(), $this->ttl);
         }
     }
 
