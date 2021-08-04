@@ -12,7 +12,7 @@ Note: No attempt is made to synchronise multiple instances of CacheableArray tha
 
 ## Requirements
 
-* PHP 7.0 or above
+* PHP 7.1 or above
 
 ## Installation
 
