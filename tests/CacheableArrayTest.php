@@ -127,7 +127,11 @@ class CacheableArrayTest extends TestCase
      */
     private function rmrf($dir)
     {
-        foreach (glob($dir) as $file) {
+        $contents = glob($dir);
+        if ($contents === false) {
+            return;
+        }
+        foreach ($contents as $file) {
             if (is_dir($file)) {
                 $this->rmrf("$file/*");
                 rmdir($file);
