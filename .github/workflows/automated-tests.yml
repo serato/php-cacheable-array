@@ -12,7 +12,7 @@ on:
 
 jobs:
   unit-tests-and-analyzers:
-    name: "PHP ${{ matrix.php-versions }}: Phpstan, Phpcs, Phpunit tests"
+    name: "PHP ${{ matrix.php-versions }}: Phpcs, Phpunit tests"
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
