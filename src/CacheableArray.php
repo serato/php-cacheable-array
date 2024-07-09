@@ -11,23 +11,33 @@ use Countable;
 use IteratorAggregate;
 
 /**
- * An class with array-like behaviour whose data is persisted to a PSR-16 "simple cache" implementation.
+ * A class with array-like behaviour whose data is persisted to a PSR-16 "simple cache" implementation.
  */
 class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
 {
-    /* @var CacheInterface */
+    /**
+     * @var CacheInterface
+     */
     private $cache;
 
-    /* @var string */
+    /**
+     * @var string
+     */
     private $key;
 
-    /* @var int */
+    /**
+     * @var int
+     */
     private $ttl;
 
-    /* @var ArrayIterator */
+    /**
+     * @var null|ArrayIterator
+     */
     private $data = null;
 
-    /* @var bool */
+    /**
+     * @var bool
+     */
     private $synced = false;
 
     /**
@@ -68,7 +78,8 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
     # START - Methods for ArrayAccess interface
 
     /**
-     * {@inheritdoc}
+     * @param $offset
+     * @return bool
      */
     public function offsetExists($offset): bool
     {
@@ -76,7 +87,8 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
     }
 
     /**
-     * {@inheritdoc}
+     * @param $offset
+     * @return mixed
      */
     public function offsetGet($offset)
     {
@@ -84,7 +96,9 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
     }
 
     /**
-     * {@inheritdoc}
+     * @param $offset
+     * @param $value
+     * @return void
      */
     public function offsetSet($offset, $value)
     {
@@ -93,7 +107,8 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
     }
 
     /**
-     * {@inheritdoc}
+     * @param $offset
+     * @return void
      */
     public function offsetUnset($offset)
     {
@@ -129,7 +144,7 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
 
     # END - Methods for Countable interface
 
-    private function load()
+    private function load(): void
     {
         if ($this->data === null) {
             $this->data = new ArrayIterator($this->cache->get($this->getCacheKey(), []));
@@ -137,14 +152,14 @@ class CacheableArray implements ArrayAccess, Countable, IteratorAggregate
         }
     }
 
-    private function save()
+    private function save(): void
     {
         if (!$this->synced) {
             $this->synced = $this->cache->set($this->getCacheKey(), $this->data->getArrayCopy(), $this->ttl);
         }
     }
 
-    private function getCacheKey()
+    private function getCacheKey(): string
     {
         return str_replace(['{', '}', '(', ')', '/', '\\', '@'], '-', __CLASS__ . $this->key);
     }

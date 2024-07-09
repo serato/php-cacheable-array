@@ -10,15 +10,15 @@ use Symfony\Component\Cache\Simple\FilesystemCache;
 
 class CacheableArrayTest extends TestCase
 {
-    public function testArrayAccess()
+    public function testArrayAccess(): void
     {
         $ac = new CacheableArray($this->getPsrCache(), 'abc');
 
         $ac['key1'] = 'value1';
         $ac['key2'] = 'value2';
 
-        $this->assertEquals($ac['key1'], 'value1');
-        $this->assertEquals($ac['key2'], 'value2');
+        $this->assertEquals('value1', $ac['key1']);
+        $this->assertEquals('value2', $ac['key2']);
 
         $this->assertTrue(isset($ac['key1']));
         $this->assertTrue(isset($ac['key2']));
@@ -29,7 +29,7 @@ class CacheableArrayTest extends TestCase
         $this->assertFalse(isset($ac['key2']));
     }
 
-    public function testCountable()
+    public function testCountable(): void
     {
         $ac = new CacheableArray($this->getPsrCache(), 'abc');
 
@@ -40,7 +40,7 @@ class CacheableArrayTest extends TestCase
         $this->assertEquals(count($ac), 2);
     }
 
-    public function testIterator()
+    public function testIterator(): void
     {
         $source = [
             'key1' => 'value1',
@@ -58,7 +58,7 @@ class CacheableArrayTest extends TestCase
         }
     }
 
-    public function testCachePersistence()
+    public function testCachePersistence(): void
     {
         $ac = new CacheableArray($this->getPsrCache(), 'abc');
         $ac['key1'] = 'value1';
@@ -81,7 +81,7 @@ class CacheableArrayTest extends TestCase
         $this->assertFalse(isset($ac['key1']));
     }
 
-    public function testArrayIterator()
+    public function testArrayIterator(): void
     {
         $ac = new CacheableArray($this->getPsrCache(), 'abc');
         $ac['key1'] = 'value1';
@@ -115,7 +115,7 @@ class CacheableArrayTest extends TestCase
         return '/tmp/' . md5(__CLASS__);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         $this->rmrf($this->getFileCacheDir());
@@ -125,7 +125,7 @@ class CacheableArrayTest extends TestCase
      * Remove the directory and its content (all files and subdirectories).
      * @param string $dir the directory name
      */
-    private function rmrf($dir)
+    private function rmrf($dir): void
     {
         $contents = glob($dir);
         if ($contents === false) {
